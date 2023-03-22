@@ -39,12 +39,7 @@ class Validator:
                 {
                     "en": "docstring",
                     "ru": "докстрингом",
-                    "it": "docstring",
-                    "de": "Dokumentation",
-                    "tr": "dökümantasyon",
-                    "uz": "hujjat",
-                    "es": "documentación",
-                    "kk": "құжат",
+                    "uk": "докстрингом",
                 }
                 Use instrumental case with lowercase
     :param _internal_id: Do not pass anything here, or things will break
@@ -59,7 +54,7 @@ class Validator:
         self.validate = validator
 
         if isinstance(doc, str):
-            doc = {"en": doc, "ru": doc, "it": doc, "de": doc, "tr": doc, "uz": doc}
+            doc = {"en": doc, "ru": doc, "uk": doc}
 
         self.doc = doc
         self.internal_id = _internal_id
@@ -74,23 +69,46 @@ class Boolean(Validator):
     def __init__(self):
         super().__init__(
             self._validate,
-            {
-                "en": "boolean",
-                "ru": "логическим значением",
-                "it": "booleano",
-                "de": "logischen Wert",
-                "tr": "mantıksal değer",
-                "uz": "mantiqiy qiymat",
-                "es": "valor lógico",
-                "kk": "логикалық мән",
-            },
+            {"en": "boolean", "ru": "логическим значением", "uk": "логічним значенням"},
             _internal_id="Boolean",
         )
 
     @staticmethod
     def _validate(value: ConfigAllowedTypes, /) -> bool:
-        true = ["True", "true", "1", 1, True, "yes", "Yes", "on", "On", "y", "Y"]
-        false = ["False", "false", "0", 0, False, "no", "No", "off", "Off", "n", "N"]
+        true = [
+            "True",
+            "true",
+            "1",
+            1,
+            True,
+            "yes",
+            "Yes",
+            "on",
+            "On",
+            "y",
+            "Y",
+            "да",
+            "Да",
+            "вкл",
+            "Вкл",
+        ]
+        false = [
+            "False",
+            "false",
+            "0",
+            0,
+            False,
+            "no",
+            "No",
+            "off",
+            "Off",
+            "n",
+            "N",
+            "нет",
+            "Нет",
+            "откл",
+            "Откл",
+        ]
         if value not in true + false:
             raise ValidationError("Passed value must be a boolean")
 
@@ -114,44 +132,24 @@ class Integer(Validator):
     ):
         _sign_en = "positive " if minimum is not None and minimum == 0 else ""
         _sign_ru = "положительным " if minimum is not None and minimum == 0 else ""
-        _sign_it = "positivo " if minimum is not None and minimum == 0 else ""
-        _sign_de = "positiv " if minimum is not None and minimum == 0 else ""
-        _sign_tr = "pozitif " if minimum is not None and minimum == 0 else ""
-        _sign_uz = "musbat " if minimum is not None and minimum == 0 else ""
-        _sign_es = "positivo " if minimum is not None and minimum == 0 else ""
-        _sign_kk = "мәндік " if minimum is not None and minimum == 0 else ""
+        _sign_uk = "позитивним " if minimum is not None and minimum == 0 else ""
 
         _sign_en = "negative " if maximum is not None and maximum == 0 else _sign_en
         _sign_ru = (
             "отрицательным " if maximum is not None and maximum == 0 else _sign_ru
         )
-        _sign_it = "negativo " if maximum is not None and maximum == 0 else _sign_it
-        _sign_de = "negativ " if maximum is not None and maximum == 0 else _sign_de
-        _sign_tr = "negatif " if maximum is not None and maximum == 0 else _sign_tr
-        _sign_uz = "manfiy " if maximum is not None and maximum == 0 else _sign_uz
-        _sign_es = "negativo " if maximum is not None and maximum == 0 else _sign_es
-        _sign_kk = "мәнсіздік " if maximum is not None and maximum == 0 else _sign_kk
+        _sign_uk = "негативним " if maximum is not None and maximum == 0 else _sign_uk
 
         _digits_en = f" with exactly {digits} digits" if digits is not None else ""
         _digits_ru = f", в котором ровно {digits} цифр " if digits is not None else ""
-        _digits_it = f" con esattamente {digits} cifre" if digits is not None else ""
-        _digits_de = f" mit genau {digits} Ziffern" if digits is not None else ""
-        _digits_tr = f" tam olarak {digits} basamaklı" if digits is not None else ""
-        _digits_uz = f" to'g'ri {digits} raqamlar bilan" if digits is not None else ""
-        _digits_es = f" con exactamente {digits} dígitos" if digits is not None else ""
-        _digits_kk = f" тең {digits} сандық" if digits is not None else ""
+        _digits_uk = f", в якому рівно {digits} цифр " if digits is not None else ""
 
         if minimum is not None and minimum != 0:
             doc = (
                 {
                     "en": f"{_sign_en}integer greater than {minimum}{_digits_en}",
                     "ru": f"{_sign_ru}целым числом больше {minimum}{_digits_ru}",
-                    "it": f"{_sign_it}intero maggiore di {minimum}{_digits_it}",
-                    "de": f"{_sign_de}ganze Zahl größer als {minimum}{_digits_de}",
-                    "tr": f"{_sign_tr}tam sayı {minimum} den büyük{_digits_tr}",
-                    "uz": f"{_sign_uz}butun son {minimum} dan katta{_digits_uz}",
-                    "es": f"{_sign_es}número entero mayor que {minimum}{_digits_es}",
-                    "kk": f"{_sign_kk}толық сан {minimum} тан көп{_digits_kk}",
+                    "uk": f"{_sign_uk}цілим числом більше {minimum}{_digits_uk}",
                 }
                 if maximum is None and maximum != 0
                 else {
@@ -160,25 +158,9 @@ class Integer(Validator):
                         f"{_sign_ru}целым числом в промежутке от {minimum} до"
                         f" {maximum}{_digits_ru}"
                     ),
-                    "it": (
-                        f"{_sign_it}intero compreso tra {minimum} e {maximum}"
-                        f"{_digits_it}"
-                    ),
-                    "de": (
-                        f"{_sign_de}ganze Zahl von {minimum} bis {maximum}{_digits_de}"
-                    ),
-                    "tr": (
-                        f"{_sign_tr}tam sayı {minimum} ile {maximum} arasında"
-                        f"{_digits_tr}"
-                    ),
-                    "uz": (
-                        f"{_sign_uz}butun son {minimum} dan {maximum} gacha{_digits_uz}"
-                    ),
-                    "es": (
-                        f"{_sign_es}número entero de {minimum} a {maximum}{_digits_es}"
-                    ),
-                    "kk": (
-                        f"{_sign_kk}толық сан {minimum} ден {maximum} қарай{_digits_kk}"
+                    "uk": (
+                        f"{_sign_uk}цілим числом у проміжку від {minimum} до {maximum}"
+                        f"{_digits_uk}"
                     ),
                 }
             )
@@ -187,23 +169,13 @@ class Integer(Validator):
             doc = {
                 "en": f"{_sign_en}integer{_digits_en}",
                 "ru": f"{_sign_ru}целым числом{_digits_ru}",
-                "it": f"{_sign_it}intero{_digits_it}",
-                "de": f"{_sign_de}ganze Zahl{_digits_de}",
-                "tr": f"{_sign_tr}tam sayı{_digits_tr}",
-                "uz": f"{_sign_uz}butun son{_digits_uz}",
-                "es": f"{_sign_es}número entero{_digits_es}",
-                "kk": f"{_sign_kk}толық сан{_digits_kk}",
+                "uk": f"{_sign_uk}цілим числом{_digits_uk}",
             }
         else:
             doc = {
                 "en": f"{_sign_en}integer less than {maximum}{_digits_en}",
                 "ru": f"{_sign_ru}целым числом меньше {maximum}{_digits_ru}",
-                "it": f"{_sign_it}intero minore di {maximum}{_digits_it}",
-                "de": f"{_sign_de}ganze Zahl kleiner als {maximum}{_digits_de}",
-                "tr": f"{_sign_tr}tam sayı {maximum} den küçük{_digits_tr}",
-                "uz": f"{_sign_uz}butun son {maximum} dan kichik{_digits_uz}",
-                "es": f"{_sign_es}número entero menor que {maximum}{_digits_es}",
-                "kk": f"{_sign_kk}толық сан {maximum} тан кем{_digits_kk}",
+                "it": f"{_sign_uk}цілим числом менше {maximum}{_digits_uk}",
             }
         super().__init__(
             functools.partial(
@@ -263,12 +235,7 @@ class Choice(Validator):
             {
                 "en": f"one of the following: {possible}",
                 "ru": f"одним из: {possible}",
-                "it": f"uno dei seguenti: {possible}",
-                "de": f"einer der folgenden: {possible}",
-                "tr": f"şunlardan biri: {possible}",
-                "uz": f"quyidagilardan biri: {possible}",
-                "es": f"uno de los siguientes: {possible}",
-                "kk": f"келесілердің бірі: {possible}",
+                "uk": f"одним з: {possible}",
             },
             _internal_id="Choice",
         )
@@ -309,26 +276,9 @@ class MultiChoice(Validator):
                     "список значений, каждое из которых должно быть одним из"
                     f" следующего: {possible}"
                 ),
-                "it": (
-                    "elenco di valori, ognuno dei quali deve essere uno dei"
-                    f" seguenti: {possible}"
-                ),
-                "de": (
-                    "Liste von Werten, bei denen jeder einer der folgenden sein muss:"
-                    f" {possible}"
-                ),
-                "tr": (
-                    "değerlerin listesi, her birinin şunlardan biri olması gerekir:"
-                    f" {possible}"
-                ),
-                "uz": (
-                    "qiymatlar ro'yxati, har biri quyidagilardan biri bo'lishi kerak:"
-                    f" {possible}"
-                ),
-                "es": f"lista de valores, donde cada uno debe ser uno de: {possible}",
-                "kk": (
-                    "мәндер тізімі, әрбірінің келесілердің бірі болуы керек:"
-                    f" {possible}"
+                "uk": (
+                    "список значень, кожне з яких має бути одним"
+                    " із наступного: {possible}"
                 ),
             },
             _internal_id="MultiChoice",

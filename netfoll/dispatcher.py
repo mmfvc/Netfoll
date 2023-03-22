@@ -119,7 +119,7 @@ class CommandDispatcher:
 
         self.raw_handlers = []
 
-    async def _handle_ratelimit(self, message: Message, func: callable) -> bool:
+    async def _handle_ratelimit(self, message: Message, func: typing.Callable) -> bool:
         if await self.security.check(
             message,
             security.OWNER | security.SUDO | security.SUPPORT,

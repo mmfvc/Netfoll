@@ -93,8 +93,7 @@ class Module:
         """Called after client is ready (after config_loaded)"""
 
     def internal_init(self):
-        """Called after the class is initialized in order to pass the client and db. Do not call it yourself
-        """
+        """Called after the class is initialized in order to pass the client and db. Do not call it yourself"""
         self.db = self.allmodules.db
         self._db = self.allmodules.db
         self.client = self.allmodules.client
@@ -564,16 +563,6 @@ class Module:
                 )
             )
 
-        if (
-            all(
-                line.replace(" ", "") != "#scope:no_stats" for line in code.splitlines()
-            )
-            and self._db.get("hikka.main", "stats", True)
-            and url is not None
-            and utils.check_url(url)
-        ):
-            with contextlib.suppress(Exception):
-                await self.lookup("loader")._send_stats(url)
 
         lib_obj.source_url = url.strip("/")
         lib_obj.allmodules = self.allmodules

@@ -49,10 +49,6 @@ def restart():
 
     print("🔄 Restarting...")
 
-    if "LAVHOST" in os.environ:
-        os.system("lavhost restart")
-        return
-
     os.environ["HIKKA_DO_NOT_RESTART"] = "1"
     if "DOCKER" in os.environ:
         atexit.register(get_startup_callback())
