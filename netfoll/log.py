@@ -13,7 +13,6 @@ import contextlib
 import inspect
 import io
 import json
-import linecache
 import logging
 import os
 import re
@@ -28,46 +27,6 @@ from aiogram.utils.exceptions import NetworkError
 from . import utils
 from .tl_cache import CustomTelegramClient
 from .types import BotInlineCall, Module
-from .web.debugger import WebDebugger
-
-# Monkeypatch linecache to make interactive line debugger available
-# in werkzeug web debugger
-# This is weird, but the only adequate approach
-# https://github.com/pallets/werkzeug/blob/3115aa6a6276939f5fd6efa46282e0256ff21f1a/src/werkzeug/debug/tbtools.py#L382-L416
-
-old = linecache.getlines
-
-
-def getlines(filename: str, module_globals=None) -> str:
-    """
-    Get the lines for a Python source file from the cache.
-    Update the cache if it doesn't contain an entry for this file already.
-
-    Modified version of original `linecache.getlines`, which returns the
-    source code of Hikka and Dragon modules properly. This is needed for
-    interactive line debugger in werkzeug web debugger.
-    """
-
-    try:
-        if filename.startswith("<") and filename.endswith(">"):
-            module = filename[1:-1].split(maxsplit=1)[-1]
-            if (
-                module.startswith("hikka.modules")
-                or module.startswith("dragon.modules")
-            ) and module in sys.modules:
-                return list(
-                    map(
-                        lambda x: f"{x}\n",
-                        sys.modules[module].__loader__.get_source().splitlines(),
-                    )
-                )
-    except Exception:
-        logging.debug("Can't get lines for %s", filename, exc_info=True)
-
-    return old(filename, module_globals)
-
-
-linecache.getlines = getlines
 
 
 def override_text(exception: Exception) -> typing.Optional[str]:
@@ -209,7 +168,6 @@ class TelegramLogsHandler(logging.Handler):
         self.tg_buff = []
         self.force_send_all = False
         self.tg_level = 20
-        self.web_debugger = None
         self.targets = targets
         self.capacity = capacity
         self.lvl = logging.NOTSET
@@ -220,9 +178,6 @@ class TelegramLogsHandler(logging.Handler):
             self._task.cancel()
 
         self._mods[mod.tg_id] = mod
-
-        if mod.db.get(__name__, "debugger", False):
-            self.web_debugger = WebDebugger()
 
         self._task = asyncio.ensure_future(self.queue_poller())
 
@@ -276,50 +231,6 @@ class TelegramLogsHandler(logging.Handler):
         for chunk in chunks[1:]:
             await bot.send_message(chat_id=call.chat_id, text=chunk)
 
-    def _gen_web_debug_button(self, item: HikkaException) -> list:
-        if not item.sysinfo:
-            return []
-
-        if not (url := item.debug_url):
-            try:
-                url = self.web_debugger.feed(*item.sysinfo)
-            except Exception:
-                url = None
-
-            item.debug_url = url
-
-        return [
-            {
-                "text": "🐞 Web debugger",
-                "url": url,
-            }
-            if self.web_debugger
-            else {
-                "text": "🪲 Start debugger",
-                "callback": self._start_debugger,
-                "args": (item,),
-            }
-        ]
-
-    async def _start_debugger(self, call: "InlineCall", item: HikkaException):  # type: ignore
-        if not self.web_debugger:
-            self.web_debugger = WebDebugger()
-            await self.web_debugger.proxy_ready.wait()
-
-        url = self.web_debugger.feed(*item.sysinfo)
-        item.debug_url = url
-
-        await call.edit(
-            item.message,
-            reply_markup=self._gen_web_debug_button(item),
-        )
-
-        await call.answer(
-            "Web debugger started. You can get PIN using .debugger command. \n⚠️ !DO"
-            " NOT GIVE IT TO ANYONE! ⚠️",
-            show_alert=True,
-        )
-
     async def sender(self):
         async with self._send_lock:
             self._queue = {
@@ -359,7 +270,6 @@ class TelegramLogsHandler(logging.Handler):
                                     ),
                                     "disable_security": True,
                                 },
-                                *self._gen_web_debug_button(item[0]),
                             ],
                         ),
                     )
