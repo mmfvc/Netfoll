@@ -26,12 +26,12 @@ from uuid import uuid4
 
 from telethon.tl.tlobject import TLObject
 
-from . import security, utils, validators, version  # skipcq
+from . import security, utils, validators, version
 from .database import Database
 from .inline.core import InlineManager
 from .translations import Strings, Translator
-from .types import ConfigValue  # skipcq
-from .types import ModuleConfig  # skipcq
+from .types import ConfigValue
+from .types import ModuleConfig
 from .types import (
     Command,
     CoreOverwriteError,
@@ -451,10 +451,10 @@ class Modules:
             callback_handlers = {}
             watchers = []
             for module in self.modules:
-                commands.update(module.hikka_commands)
-                inline_handlers.update(module.hikka_inline_handlers)
-                callback_handlers.update(module.hikka_callback_handlers)
-                watchers.extend(module.hikka_watchers.values())
+                commands.update(module.netfoll_commands)
+                inline_handlers.update(module.netfoll_inline_handlers)
+                callback_handlers.update(module.netfoll_callback_handlers)
+                watchers.extend(module.netfoll_watchers.values())
 
             self.commands = commands
             self.inline_handlers = inline_handlers
@@ -669,10 +669,10 @@ class Modules:
 
         if instance.__origin__.startswith("<core"):
             self._core_commands += list(
-                map(lambda x: x.lower(), list(instance.hikka_commands))
+                map(lambda x: x.lower(), list(instance.netfoll_commands))
             )
 
-        for _command, cmd in instance.hikka_commands.items():
+        for _command, cmd in instance.netfoll_commands.items():
             # Restrict overwriting core modules' commands
             if (
                 _command.lower() in self._core_commands
@@ -687,13 +687,13 @@ class Modules:
             self.commands.update({_command.lower(): cmd})
 
         for alias, cmd in self.aliases.copy().items():
-            if cmd in instance.hikka_commands:
+            if cmd in instance.netfoll_commands:
                 self.add_alias(alias, cmd)
 
         self.register_inline_stuff(instance)
 
     def register_inline_stuff(self, instance: Module):
-        for name, func in instance.hikka_inline_handlers.copy().items():
+        for name, func in instance.netfoll_inline_handlers.copy().items():
             if name.lower() in self.inline_handlers:
                 if (
                     hasattr(func, "__self__")
@@ -717,7 +717,7 @@ class Modules:
 
             self.inline_handlers.update({name.lower(): func})
 
-        for name, func in instance.hikka_callback_handlers.copy().items():
+        for name, func in instance.netfoll_callback_handlers.copy().items():
             if name.lower() in self.callback_handlers and (
                 hasattr(func, "__self__")
                 and hasattr(self.callback_handlers[name], "__self__")
@@ -733,7 +733,7 @@ class Modules:
             self.callback_handlers.update({name.lower(): func})
 
     def unregister_inline_stuff(self, instance: Module, purpose: str):
-        for name, func in instance.hikka_inline_handlers.copy().items():
+        for name, func in instance.netfoll_inline_handlers.copy().items():
             if name.lower() in self.inline_handlers and (
                 hasattr(func, "__self__")
                 and hasattr(self.inline_handlers[name], "__self__")
@@ -748,7 +748,7 @@ class Modules:
                     purpose,
                 )
 
-        for name, func in instance.hikka_callback_handlers.copy().items():
+        for name, func in instance.netfoll_callback_handlers.copy().items():
             if name.lower() in self.callback_handlers and (
                 hasattr(func, "__self__")
                 and hasattr(self.callback_handlers[name], "__self__")
@@ -773,7 +773,7 @@ class Modules:
                 logger.debug("Removing watcher %s for update", _watcher)
                 self.watchers.remove(_watcher)
 
-        for _watcher in instance.hikka_watchers.values():
+        for _watcher in instance.netfoll_watchers.values():
             self.watchers += [_watcher]
 
     def lookup(

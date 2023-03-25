@@ -37,7 +37,7 @@ def override_text(exception: Exception) -> typing.Optional[str]:
     return None
 
 
-class HikkaException:
+class NetfollException:
     def __init__(
         self,
         message: str,
@@ -60,7 +60,7 @@ class HikkaException:
         exc_value: Exception,
         tb: traceback.TracebackException,
         stack: typing.Optional[typing.List[inspect.FrameInfo]] = None,
-    ) -> "HikkaException":
+    ) -> "NetfollException":
         def to_hashable(dictionary: dict) -> dict:
             dictionary = dictionary.copy()
             for key, value in dictionary.items():
@@ -133,7 +133,7 @@ class HikkaException:
             else ""
         )
 
-        return HikkaException(
+        return NetfollException(
             message=override_text(exc_value)
             or (
                 f"<b>🚫 Error!</b>\n{cause_mod}\n<b>🗄 Where:</b>"
@@ -210,7 +210,7 @@ class TelegramLogsHandler(logging.Handler):
         self,
         call: BotInlineCall,
         bot: "aiogram.Bot",  # type: ignore
-        item: HikkaException,
+        item: NetfollException,
     ):
         chunks = (
             item.message
@@ -274,7 +274,7 @@ class TelegramLogsHandler(logging.Handler):
                         ),
                     )
                     for item in self.tg_buff
-                    if isinstance(item[0], HikkaException)
+                    if isinstance(item[0], NetfollException)
                     and (not item[1] or item[1] == client_id or self.force_send_all)
                 ]
                 for client_id in self._mods
@@ -345,7 +345,7 @@ class TelegramLogsHandler(logging.Handler):
             if record.exc_info:
                 self.tg_buff += [
                     (
-                        HikkaException.from_exc_info(
+                        NetfollException.from_exc_info(
                             *record.exc_info,
                             stack=record.__dict__.get("stack", None),
                         ),

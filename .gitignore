@@ -131,11 +131,10 @@ dmypy.json
 
 *__pycache__
 *.pyc
-hikka/api_token.py
-hikka/loaded_modules
+netfoll/api_token.py
+netfoll/loaded_modules
 loaded_modules
-hikka/debug_modules
-hikka*.session*
+netfoll*.session*
 database-*.json
 *.swp
 .setup_complete
@@ -171,5 +170,6 @@ config.json
 vendor/
 Pipfile.lock
 
-hikka.log.*
+netfoll.log.*
+netfoll-*.log
 unknown_errors.txt
