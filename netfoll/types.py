@@ -24,7 +24,7 @@ import typing
 from dataclasses import dataclass, field
 from importlib.abc import SourceLoader
 
-import requests
+import requests # type: ignore
 from telethon.hints import EntityLike
 from telethon.tl.functions.account import UpdateNotifySettingsRequest
 from telethon.tl.types import (
@@ -169,7 +169,7 @@ class Module:
         return get_inline_handlers(self)
 
     @property
-    def hikka_inline_handlers(self) -> typing.Dict[str, Command]:
+    def netfoll_inline_handlers(self) -> typing.Dict[str, Command]:
         """List of inline handlers that module supports"""
         return get_inline_handlers(self)
 
