@@ -10,8 +10,8 @@ import functools
 import re
 import typing
 
-import grapheme
-from emoji import get_emoji_unicode_dict
+import grapheme  # type: ignore
+from emoji import get_emoji_unicode_dict  # type: ignore
 
 from . import utils
 
@@ -75,40 +75,28 @@ class Boolean(Validator):
 
     @staticmethod
     def _validate(value: ConfigAllowedTypes, /) -> bool:
+        # fmt: off
         true = [
-            "True",
-            "true",
-            "1",
-            1,
+            "True", "true",
+            "1", 1,
             True,
-            "yes",
-            "Yes",
-            "on",
-            "On",
-            "y",
-            "Y",
-            "да",
-            "Да",
-            "вкл",
-            "Вкл",
+            "yes", "Yes",
+            "on", "On",
+            "y", "Y",
+            "да", "Да",
+            "вкл", "Вкл",
         ]
         false = [
-            "False",
-            "false",
-            "0",
-            0,
+            "False", "false",
+            "0", 0,
             False,
-            "no",
-            "No",
-            "off",
-            "Off",
-            "n",
-            "N",
-            "нет",
-            "Нет",
-            "откл",
-            "Откл",
+            "no", "No",
+            "off", "Off",
+            "n", "N",
+            "нет", "Нет",
+            "откл", "Откл",
         ]
+        # fmt: on
         if value not in true + false:
             raise ValidationError("Passed value must be a boolean")
 
@@ -328,61 +316,29 @@ class Series(Validator):
         _each_ru = (
             f" (каждое должно быть {trans('ru')})" if validator is not None else ""
         )
-        _each_it = (
-            f" (ognuno deve essere {trans('it')})" if validator is not None else ""
-        )
-        _each_de = f" (jedes muss {trans('de')})" if validator is not None else ""
-        _each_tr = f" (her biri {trans('tr')})" if validator is not None else ""
-        _each_uz = f" (har biri {trans('uz')})" if validator is not None else ""
-        _each_es = f" (cada uno {trans('es')})" if validator is not None else ""
-        _each_kk = f" (әрбірі {trans('kk')})" if validator is not None else ""
+        _each_uk = f" (кожне має бути {trans('uk')})" if validator is not None else ""
 
         if fixed_len is not None:
             _len_en = f" (exactly {fixed_len} pcs.)"
             _len_ru = f" (ровно {fixed_len} шт.)"
-            _len_it = f" (esattamente {fixed_len} pezzi)"
-            _len_de = f" (genau {fixed_len} Stück)"
-            _len_tr = f" (tam olarak {fixed_len} adet)"
-            _len_uz = f" (to'g'ri {fixed_len} ta)"
-            _len_es = f" (exactamente {fixed_len} piezas)"
-            _len_kk = f" (тоғыз {fixed_len} құны)"
+            _len_uk = f" (рівно {fixed_len} шт.)"
         elif min_len is None:
             if max_len is None:
                 _len_en = ""
                 _len_ru = ""
-                _len_it = ""
-                _len_de = ""
-                _len_tr = ""
-                _len_uz = ""
-                _len_es = ""
-                _len_kk = ""
+                _len_uk = ""
             else:
                 _len_en = f" (up to {max_len} pcs.)"
                 _len_ru = f" (до {max_len} шт.)"
-                _len_it = f" (fino a {max_len} pezzi)"
-                _len_de = f" (bis zu {max_len} Stück)"
-                _len_tr = f" (en fazla {max_len} adet)"
-                _len_uz = f" (eng ko'p {max_len} ta)"
-                _len_es = f" (hasta {max_len} piezas)"
-                _len_kk = f" (көптегенде {max_len} құны)"
+                _len_uk = _len_ru
         elif max_len is not None:
             _len_en = f" (from {min_len} to {max_len} pcs.)"
             _len_ru = f" (от {min_len} до {max_len} шт.)"
-            _len_it = f" (da {min_len} a {max_len} pezzi)"
-            _len_de = f" (von {min_len} bis {max_len} Stück)"
-            _len_tr = f" ({min_len} ile {max_len} arasında {max_len} adet)"
-            _len_uz = f" ({min_len} dan {max_len} gacha {max_len} ta)"
-            _len_es = f" (desde {min_len} hasta {max_len} piezas)"
-            _len_kk = f" ({min_len} ден {max_len} ге {max_len} құны)"
+            _len_uk = f" (від {min_len} до {max_len} шт.)"
         else:
             _len_en = f" (at least {min_len} pcs.)"
             _len_ru = f" (как минимум {min_len} шт.)"
-            _len_it = f" (almeno {min_len} pezzi)"
-            _len_de = f" (mindestens {min_len} Stück)"
-            _len_tr = f" (en az {min_len} adet)"
-            _len_uz = f" (kamida {min_len} ta)"
-            _len_es = f" (al menos {min_len} piezas)"
-            _len_kk = f" (кем дегенде {min_len} құны)"
+            _len_uk = f" (як мінімум {min_len} шт.)"
 
         super().__init__(
             functools.partial(
@@ -395,12 +351,7 @@ class Series(Validator):
             {
                 "en": f"series of values{_len_en}{_each_en}, separated with «,»",
                 "ru": f"списком значений{_len_ru}{_each_ru}, разделенных «,»",
-                "it": f"serie di valori{_len_it}{_each_it}, separati con «,»",
-                "de": f"Liste von Werten{_len_de}{_each_de}, getrennt mit «,»",
-                "tr": f"değerlerin listesi{_len_tr}{_each_tr}, «,» ile ayrılmış",
-                "uz": f"qiymatlar ro'yxati{_len_uz}{_each_uz}, «,» bilan ajratilgan",
-                "es": f"lista de valores{_len_es}{_each_es}, separados con «,»",
-                "kk": f"мәндер тізімі{_len_kk}{_each_kk}, «,» бойынша бөлінген",
+                "uk": f"списком значень{_len_uk}{_each_uk}, розділених «,»",
             },
             _internal_id="Series",
         )
@@ -462,12 +413,7 @@ class Link(Validator):
             {
                 "en": "link",
                 "ru": "ссылкой",
-                "it": "collegamento",
-                "de": "Link",
-                "tr": "bağlantı",
-                "uz": "havola",
-                "es": "enlace",
-                "kk": "сілтеме",
+                "uk": "посиланням",
             },
             _internal_id="Link",
         )
@@ -501,12 +447,7 @@ class String(Validator):
             doc = {
                 "en": f"string of length {length}",
                 "ru": f"строкой из {length} символа(-ов)",
-                "it": f"stringa di lunghezza {length}",
-                "de": f"Zeichenkette mit Länge {length}",
-                "tr": f"{length} karakter uzunluğunda dize",
-                "uz": f"{length} ta belgi uzunlig'ida satr",
-                "es": f"cadena de longitud {length}",
-                "kk": f"{length} ұзындығында сөз",
+                "uk": f"рядком з {length} символу(-ів)",
             }
         else:
             if min_len is None:
@@ -514,45 +455,25 @@ class String(Validator):
                     doc = {
                         "en": "string",
                         "ru": "строкой",
-                        "it": "stringa",
-                        "de": "Zeichenkette",
-                        "tr": "dize",
-                        "uz": "satr",
-                        "es": "cadena",
-                        "kk": "сөз",
+                        "uk": "рядком",
                     }
                 else:
                     doc = {
                         "en": f"string of length up to {max_len}",
                         "ru": f"строкой не более чем из {max_len} символа(-ов)",
-                        "it": f"stringa di lunghezza massima {max_len}",
-                        "de": f"Zeichenkette mit Länge bis zu {max_len}",
-                        "tr": f"{max_len} karakter uzunluğunda dize",
-                        "uz": f"{max_len} ta belgi uzunlig'ida satr",
-                        "es": f"cadena de longitud {max_len}",
-                        "kk": f"{max_len} ұзындығында сөз",
+                        "uk": f"рядком не більше ніж з {max_len} символу(ів)",
                     }
             elif max_len is not None:
                 doc = {
                     "en": f"string of length from {min_len} to {max_len}",
                     "ru": f"строкой из {min_len}-{max_len} символа(-ов)",
-                    "it": f"stringa di lunghezza da {min_len} a {max_len}",
-                    "de": f"Zeichenkette mit Länge von {min_len} bis {max_len}",
-                    "tr": f"{min_len}-{max_len} karakter uzunluğunda dize",
-                    "uz": f"{min_len}-{max_len} ta belgi uzunlig'ida satr",
-                    "es": f"cadena de longitud {min_len}-{max_len}",
-                    "kk": f"{min_len}-{max_len} ұзындығында сөз",
+                    "uk": f"рядком з {min_len}-{max_len} символу(-ів)",
                 }
             else:
                 doc = {
                     "en": f"string of length at least {min_len}",
                     "ru": f"строкой не менее чем из {min_len} символа(-ов)",
-                    "it": f"stringa di lunghezza minima {min_len}",
-                    "de": f"Zeichenkette mit Länge mindestens {min_len}",
-                    "tr": f"{min_len} karakter uzunluğunda dize",
-                    "uz": f"{min_len} ta belgi uzunlig'ida satr",
-                    "es": f"cadena de longitud {min_len}",
-                    "kk": f"{min_len} ұзындығында сөз",
+                    "uk": f"рядком не менше ніж з {min_len} символу(-ів)",
                 }
 
         super().__init__(
@@ -628,12 +549,7 @@ class RegExp(Validator):
             doc = {
                 "en": f"string matching pattern «{regex}»",
                 "ru": f"строкой, соответствующей шаблону «{regex}»",
-                "it": f"stringa che corrisponde al modello «{regex}»",
-                "de": f"Zeichenkette, die dem Muster «{regex}» entspricht",
-                "tr": f"«{regex}» kalıbına uygun dize",
-                "uz": f"«{regex}» shabloniga mos matn",
-                "es": f"cadena que coincide con el patrón «{regex}»",
-                "kk": f"«{regex}» үлгісіне сәйкес сөз",
+                "uk": f"рядком, що відповідає шаблону «{regex}»",
             }
         else:
             if isinstance(description, str):
@@ -675,35 +591,20 @@ class Float(Validator):
     ):
         _sign_en = "positive " if minimum is not None and minimum == 0 else ""
         _sign_ru = "положительным " if minimum is not None and minimum == 0 else ""
-        _sign_it = "positivo " if minimum is not None and minimum == 0 else ""
-        _sign_de = "positiv " if minimum is not None and minimum == 0 else ""
-        _sign_tr = "pozitif " if minimum is not None and minimum == 0 else ""
-        _sign_uz = "musbat " if minimum is not None and minimum == 0 else ""
-        _sign_es = "positivo " if minimum is not None and minimum == 0 else ""
-        _sign_kk = "мың " if minimum is not None and minimum == 0 else ""
+        _sign_uk = "позитивним" if minimum is not None and minimum == 0 else ""
 
         _sign_en = "negative " if maximum is not None and maximum == 0 else _sign_en
         _sign_ru = (
             "отрицательным " if maximum is not None and maximum == 0 else _sign_ru
         )
-        _sign_it = "negativo " if maximum is not None and maximum == 0 else _sign_it
-        _sign_de = "negativ " if maximum is not None and maximum == 0 else _sign_de
-        _sign_tr = "negatif " if maximum is not None and maximum == 0 else _sign_tr
-        _sign_uz = "manfiy " if maximum is not None and maximum == 0 else _sign_uz
-        _sign_es = "negativo " if maximum is not None and maximum == 0 else _sign_es
-        _sign_kk = "мінус " if maximum is not None and maximum == 0 else _sign_kk
+        _sign_uk = "негативним" if maximum is not None and maximum == 0 else _sign_uk
 
         if minimum is not None and minimum != 0:
             doc = (
                 {
                     "en": f"{_sign_en}float greater than {minimum}",
                     "ru": f"{_sign_ru}дробным числом больше {minimum}",
-                    "it": f"{_sign_it}numero decimale maggiore di {minimum}",
-                    "de": f"{_sign_de}Fließkommazahl größer als {minimum}",
-                    "tr": f"{_sign_tr}ondalık sayı {minimum} dan büyük",
-                    "uz": f"{_sign_uz}butun son {minimum} dan katta",
-                    "es": f"{_sign_es}número decimal mayor que {minimum}",
-                    "kk": f"{_sign_kk}сандық сан {minimum} тан аспау",
+                    "uk": f"{_sign_uk}дрібним числом більше {minimum}",
                 }
                 if maximum is None and maximum != 0
                 else {
@@ -712,14 +613,10 @@ class Float(Validator):
                         f"{_sign_ru}дробным числом в промежутке от {minimum} до"
                         f" {maximum}"
                     ),
-                    "it": (
-                        f"{_sign_it}numero decimale compreso tra {minimum} e {maximum}"
+                    "uk": (
+                        f"{_sign_uk}дрібним числом у проміжку від {minimum} до"
+                        f" {maximum}"
                     ),
-                    "de": f"{_sign_de}Fließkommazahl von {minimum} bis {maximum}",
-                    "tr": f"{_sign_tr}ondalık sayı {minimum} ile {maximum} arasında",
-                    "uz": f"{_sign_uz}butun son {minimum} dan {maximum} gacha",
-                    "es": f"{_sign_es}número decimal de {minimum} a {maximum}",
-                    "kk": f"{_sign_kk}сандық сан {minimum} ден {maximum} ге",
                 }
             )
 
@@ -727,23 +624,13 @@ class Float(Validator):
             doc = {
                 "en": f"{_sign_en}float",
                 "ru": f"{_sign_ru}дробным числом",
-                "it": f"{_sign_it}numero decimale",
-                "de": f"{_sign_de}Fließkommazahl",
-                "tr": f"{_sign_tr}ondalık sayı",
-                "uz": f"{_sign_uz}butun son",
-                "es": f"{_sign_es}número decimal",
-                "kk": f"{_sign_kk}сандық сан",
+                "uk": f"{_sign_uk}дрібним числом",
             }
         else:
             doc = {
                 "en": f"{_sign_en}float less than {maximum}",
                 "ru": f"{_sign_ru}дробным числом меньше {maximum}",
-                "it": f"{_sign_it}numero decimale minore di {maximum}",
-                "de": f"{_sign_de}Fließkommazahl kleiner als {maximum}",
-                "tr": f"{_sign_tr}ondalık sayı {maximum} dan küçük",
-                "uz": f"{_sign_uz}butun son {maximum} dan kichik",
-                "es": f"{_sign_es}número decimal menor que {maximum}",
-                "kk": f"{_sign_kk}сандық сан {maximum} тан кіші",
+                "uk": f"{_sign_uk}дрібним числом менше {maximum}",
             }
 
         super().__init__(
@@ -809,12 +696,7 @@ class Union(Validator):
         doc = {
             "en": "one of the following:\n",
             "ru": "одним из следующего:\n",
-            "it": "uno dei seguenti:\n",
-            "de": "einer der folgenden:\n",
-            "tr": "aşağıdakilerden biri:\n",
-            "uz": "quyidagi biri:\n",
-            "es": "uno de los siguientes:\n",
-            "kk": "келесілердің бірі:\n",
+            "uk": "одним із наступного:\n",
         }
 
         def case(x: str) -> str:
@@ -856,12 +738,7 @@ class NoneType(Validator):
             {
                 "en": "empty value",
                 "ru": "пустым значением",
-                "it": "valore vuoto",
-                "de": "leeren Wert",
-                "tr": "boş değer",
-                "uz": "bo'sh qiymat",
-                "es": "valor vacío",
-                "kk": "бос мән",
+                "uk": "порожнім значенням",
             },
             _internal_id="NoneType",
         )
@@ -913,56 +790,31 @@ class Emoji(Validator):
             doc = {
                 "en": f"{length} emojis",
                 "ru": f"ровно {length} эмодзи",
-                "it": f"{length} emoji",
-                "de": f"genau {length} Emojis",
-                "tr": f"tam {length} emoji",
-                "uz": f"to'g'ri {length} emoji",
-                "es": f"exactamente {length} emojis",
-                "kk": f"тоғыз {length} емодзи",
+                "uk": f"{length} емодзі",
             }
         elif min_len is not None and max_len is not None:
             doc = {
                 "en": f"{min_len} to {max_len} emojis",
                 "ru": f"от {min_len} до {max_len} эмодзи",
-                "it": f"{min_len} a {max_len} emoji",
-                "de": f"zwischen {min_len} und {max_len} Emojis",
-                "tr": f"{min_len} ile {max_len} arasında emoji",
-                "uz": f"{min_len} dan {max_len} gacha emoji",
-                "es": f"entre {min_len} y {max_len} emojis",
-                "kk": f"{min_len} ден {max_len} ге емодзи",
+                "uk": f"від {min_len} до {max_len} емодзі",
             }
         elif min_len is not None:
             doc = {
                 "en": f"at least {min_len} emoji",
                 "ru": f"не менее {min_len} эмодзи",
-                "it": f"almeno {min_len} emoji",
-                "de": f"mindestens {min_len} Emojis",
-                "tr": f"en az {min_len} emoji",
-                "uz": f"kamida {min_len} emoji",
-                "es": f"al menos {min_len} emojis",
-                "kk": f"кем дегенде {min_len} емодзи",
+                "uk": f"не менше {min_len} емодзі",
             }
         elif max_len is not None:
             doc = {
                 "en": f"no more than {max_len} emojis",
                 "ru": f"не более {max_len} эмодзи",
-                "it": f"non più di {max_len} emoji",
-                "de": f"maximal {max_len} Emojis",
-                "tr": f"en fazla {max_len} emoji",
-                "uz": f"{max_len} dan ko'proq emoji",
-                "es": f"no más de {max_len} emojis",
-                "kk": f"{max_len} ден асты емодзи",
+                "uk": f"не більше {max_len} емодзі",
             }
         else:
             doc = {
                 "en": "emoji",
                 "ru": "эмодзи",
-                "it": "emoji",
-                "de": "Emoji",
-                "tr": "emoji",
-                "uz": "emoji",
-                "es": "emojis",
-                "kk": "емодзи",
+                "uk": "емодзі",
             }
 
         super().__init__(
@@ -1026,12 +878,7 @@ class EntityLike(RegExp):
             description={
                 "en": "link to entity, username or Telegram ID",
                 "ru": "ссылка на сущность, имя пользователя или Telegram ID",
-                "it": "link all'ent entità, nome utente o ID Telegram",
-                "de": "Link zu einer Entität, Benutzername oder Telegram-ID",
-                "tr": "bir varlığa bağlantı, kullanıcı adı veya Telegram kimliği",
-                "uz": "entityga havola, foydalanuvchi nomi yoki Telegram ID",
-                "es": "enlace a la entidad, nombre de usuario o ID de Telegram",
-                "kk": "сынаққа сілтеме, пайдаланушы аты немесе Telegram ID",
+                "uk": "посилання на сутність, ім'я користувача або Telegram ID",
             },
         )
 

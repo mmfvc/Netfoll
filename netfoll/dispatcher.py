@@ -104,17 +104,17 @@ class CommandDispatcher:
         self.security = security.SecurityManager(client, db)
 
         self.check_security = self.security.check
-        self._me = self._client.hikka_me.id
+        self._me = self._client.netfoll_me.id
         self._cached_usernames = [
             (
-                self._client.hikka_me.username.lower()
-                if self._client.hikka_me.username
-                else str(self._client.hikka_me.id)
+                self._client.netfoll_me.username.lower()
+                if self._client.netfoll_me.username
+                else str(self._client.netfoll_me.id)
             )
         ]
 
         self._cached_usernames.extend(
-            getattr(self._client.hikka_me, "usernames", None) or []
+            getattr(self._client.netfoll_me, "usernames", None) or []
         )
 
         self.raw_handlers = []
@@ -248,7 +248,7 @@ class CommandDispatcher:
         message.edit = my_edit
         message.reply = my_reply
         message.respond = my_respond
-        message.hikka_grepped = True
+        message.netfoll_grepped = True
 
         return message
 
@@ -269,7 +269,7 @@ class CommandDispatcher:
 
         if (
             message.out
-            and len(message.message) > 2
+            and len(message.message) > len(prefix) * 2
             and (
                 message.message.startswith(prefix * 2)
                 and any(s != prefix for s in message.message)
@@ -280,10 +280,12 @@ class CommandDispatcher:
             # Allow escaping commands using .'s
             if not watcher:
                 await message.edit(
-                    message.message[1:],
+                    message.message[len(prefix) :],
                     parse_mode=lambda s: (
                         s,
-                        utils.relocate_entities(message.entities, -1, message.message)
+                        utils.relocate_entities(
+                            message.entities, -len(prefix), message.message
+                        )
                         or (),
                     ),
                 )
@@ -316,7 +318,7 @@ class CommandDispatcher:
         ):
             return False
 
-        if not message.message or len(message.message) == 1:
+        if not message.message or len(message.message) == len(prefix):
             return False  # Message is just the prefix
 
         initiator = getattr(event, "sender_id", 0)
@@ -683,7 +685,7 @@ class CommandDispatcher:
     ):
         # Will be used to determine, which client caused logging messages
         # parsed via inspect.stack()
-        _hikka_client_id_logging_tag = copy.copy(self.client.tg_id)  # skipcq
+        _hikka_client_id_logging_tag = copy.copy(self.client.tg_id)
         try:
             await func(message)
         except Exception as e:
