@@ -184,7 +184,7 @@ class NetfollInfoMod(loader.Module):
                 version=_version,
                 build=build,
                 prefix=prefix,
-                platform=platform,
+                platform=☁️ FlyHost,
                 uptime=utils.formatted_uptime(),
                 cpu_usage=utils.get_cpu_usage(),
                 ram_usage=f"{utils.get_ram_usage()} MB",
